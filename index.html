@@ -207,7 +207,7 @@ tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--g50
 <div id="toast"></div>
 
 <script>
-var SHEET='https://script.google.com/macros/s/AKfycbzeSmMr1-LE-wGrOJ6HXlHtHwUZ0qHkzWH5pq125Vzl9ZWphlyiqAnQ_QQAbiQziABCsA/exec';
+var SHEET='https://script.google.com/macros/s/AKfycbxKQ3XxYK0oKLh6E5hinz47wH_JneCu4w3CiP0vued0rwW9SA7Ld4LsVkgMzjfO8LP-Yg/exec';
 var TRATS=[{n:'Endodoncia',z:0},{n:'Retiro de suturas',z:1,d:1},{n:'Revisión sin costo',z:1},{n:'Diagnóstico sin costo',z:1},{n:'Consulta',z:0},{n:'Emergencia',z:0},{n:'Cx',z:0},{n:'Retiro de poste',z:0},{n:'Espacio para poste',z:0},{n:'Alargamiento de corona',z:0},{n:'Retiro de carillas con láser',z:0},{n:'Láser',z:0},{n:'Blanqueamiento',z:0},{n:'Periimplantitis',z:0},{n:'Apexificación',z:0},{n:'Incisión y drenaje',z:0},{n:'Pulpotomía',z:0},{n:'NESA 14 sesiones',z:0},{n:'Sedación',z:0},{n:'Hipersensibilidad',z:0},{n:'Perio repair',z:0},{n:'Recubrimiento pulpar',z:0},{n:'Retiro de caries con láser',z:0},{n:'Terapia láser periodoncia',z:0},{n:'Láser lengua',z:0},{n:'Fibroma',z:0},{n:'Láser muscular',z:0},{n:'Láser ATM',z:0},{n:'Hemangioma',z:0},{n:'Herpes y aftas',z:0},{n:'Frenilectomía inferior',z:0},{n:'Frenilectomía superior',z:0},{n:'Otros',z:0,o:1}];
 var CATS=['Gasolina moto','Estacionamiento','CFE','Telmex','Café Dr','Refresco Dr','Comida Dr','Dentadec','Office Depot','Agua Garrafón','Transfer Dr J','Impuestos','Firmacar','Coche Isaac','IMSS','ISR','Amex','Nómina','Renta','Depósito Palmas','Aromaterapia','Cheque caja chica','Costco','Sams','Eduardo Fierro','Cheque P','Material','Grupo Acosta','Espacio','Dist. Craneofacial','Remex','Mantenimiento consul','Reactivos esterilización','Mesones','Otros'];
 var selT=[],selE='',selP='',deuda=null,selC='',selPE='',rI='',rE='',ingresos=[],egresos=[];
@@ -388,7 +388,8 @@ function saveIng(){
   var folio=mkFolio();
   var rec={tipo:'ingreso',folio:folio,fecha:fecha,paciente:pac,doctor:dr,tratamientos:trats.join(' / '),estatus:selE,fecha_reprogram:rep||'—',monto:monto,forma_pago:selP,obs:obs,registrado:rI,ts:new Date().toISOString()};
   var btn=document.getElementById('savi');btn.textContent='Enviando...';btn.disabled=true;
-  fetch(SHEET,{method:'POST',mode:'no-cors',body:JSON.stringify(rec)})
+  var url=SHEET+'?data='+encodeURIComponent(JSON.stringify(rec));
+  fetch(url,{method:'GET',mode:'no-cors'})
     .then(function(){ingresos.push(rec);localStorage.removeItem('ci_ing');renderTbls();rstIng();toast('✓ Ingreso guardado en Google Sheets','b');})
     .catch(function(){ingresos.push(rec);localStorage.setItem('ci_ing',JSON.stringify(ingresos));renderTbls();rstIng();toast('⚠ Sin conexión — guardado localmente','b');})
     .finally(function(){btn.textContent='Guardar Ingreso';btn.disabled=false;});
@@ -412,7 +413,8 @@ function saveEgr(){
   var folio=mkFolio();
   var rec={tipo:'egreso',folio:folio,fecha:fecha,categoria:cat,concepto:con,monto:monto,ticket:tkt,forma_pago:selPE,notas:not,registrado:rE,ts:new Date().toISOString()};
   var btn=document.getElementById('save');btn.textContent='Enviando...';btn.disabled=true;
-  fetch(SHEET,{method:'POST',mode:'no-cors',body:JSON.stringify(rec)})
+  var url=SHEET+'?data='+encodeURIComponent(JSON.stringify(rec));
+  fetch(url,{method:'GET',mode:'no-cors'})
     .then(function(){egresos.push(rec);localStorage.removeItem('ci_egr');renderTbls();rstEgr();toast('✓ Egreso guardado en Google Sheets','r');})
     .catch(function(){egresos.push(rec);localStorage.setItem('ci_egr',JSON.stringify(egresos));renderTbls();rstEgr();toast('⚠ Sin conexión — guardado localmente','r');})
     .finally(function(){btn.textContent='Guardar Egreso';btn.disabled=false;});
