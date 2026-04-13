@@ -388,9 +388,8 @@ function saveIng(){
   var folio=mkFolio();
   var rec={tipo:'ingreso',folio:folio,fecha:fecha,paciente:pac,doctor:dr,tratamientos:trats.join(' / '),estatus:selE,fecha_reprogram:rep||'—',monto:monto,forma_pago:selP,obs:obs,registrado:rI,ts:new Date().toISOString()};
   var btn=document.getElementById('savi');btn.textContent='Enviando...';btn.disabled=true;
-  fetch(SHEET,{method:'POST',body:JSON.stringify(rec)})
-    .then(function(r){return r.json();})
-    .then(function(res){if(res.status==='ok'){ingresos.push(rec);localStorage.removeItem('ci_ing');renderTbls();rstIng();toast('✓ Ingreso guardado en Google Sheets','b');}else{toast('Error al guardar — intenta de nuevo','b');}})
+  fetch(SHEET,{method:'POST',mode:'no-cors',body:JSON.stringify(rec)})
+    .then(function(){ingresos.push(rec);localStorage.removeItem('ci_ing');renderTbls();rstIng();toast('✓ Ingreso guardado en Google Sheets','b');})
     .catch(function(){ingresos.push(rec);localStorage.setItem('ci_ing',JSON.stringify(ingresos));renderTbls();rstIng();toast('⚠ Sin conexión — guardado localmente','b');})
     .finally(function(){btn.textContent='Guardar Ingreso';btn.disabled=false;});
 }
@@ -413,9 +412,8 @@ function saveEgr(){
   var folio=mkFolio();
   var rec={tipo:'egreso',folio:folio,fecha:fecha,categoria:cat,concepto:con,monto:monto,ticket:tkt,forma_pago:selPE,notas:not,registrado:rE,ts:new Date().toISOString()};
   var btn=document.getElementById('save');btn.textContent='Enviando...';btn.disabled=true;
-  fetch(SHEET,{method:'POST',body:JSON.stringify(rec)})
-    .then(function(r){return r.json();})
-    .then(function(res){if(res.status==='ok'){egresos.push(rec);localStorage.removeItem('ci_egr');renderTbls();rstEgr();toast('✓ Egreso guardado en Google Sheets','r');}else{toast('Error al guardar — intenta de nuevo','r');}})
+  fetch(SHEET,{method:'POST',mode:'no-cors',body:JSON.stringify(rec)})
+    .then(function(){egresos.push(rec);localStorage.removeItem('ci_egr');renderTbls();rstEgr();toast('✓ Egreso guardado en Google Sheets','r');})
     .catch(function(){egresos.push(rec);localStorage.setItem('ci_egr',JSON.stringify(egresos));renderTbls();rstEgr();toast('⚠ Sin conexión — guardado localmente','r');})
     .finally(function(){btn.textContent='Guardar Egreso';btn.disabled=false;});
 }
