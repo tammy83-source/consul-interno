@@ -670,6 +670,9 @@ tbody tr:hover td { background: var(--gray-50); }
 <div id="toast"></div>
 
 <script>
+// ── GOOGLE SHEETS URL ────────────────────────────────────────────────────
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzeSmMr1-LE-wGrOJ6HXlHtHwUZ0qHkzWH5pq125Vzl9ZWphlyiqAnQ_QQAbiQziABCsA/exec';
+
 // ── DATA ────────────────────────────────────────────────────────────────
 const TRATAMIENTOS = [
   {n:'Endodoncia',zero:false},{n:'Retiro de suturas',zero:true,deuda:true},
@@ -992,11 +995,46 @@ function guardarIngreso() {
     ts: new Date().toISOString()
   };
 
-  ingresos.push(rec);
-  localStorage.setItem('ci_ing', JSON.stringify(ingresos));
-  resetIngreso();
-  renderTables();
-  toast('✓ Ingreso guardado correctamente','blue');
+  const rec = {
+    tipo: 'ingreso',
+    folio, fecha, paciente, doctor,
+    tratamientos: selectedTrats.join(' / '),
+    estatus: selectedEstatus,
+    fecha_reprogram: reprogram || '—',
+    monto, forma_pago: selectedPago,
+    obs, registrado: regIng,
+    ts: new Date().toISOString()
+  };
+
+  // Mostrar estado de envío
+  const btn = document.querySelector('.ing-save');
+  btn.textContent = 'Enviando...'; btn.disabled = true;
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    body: JSON.stringify(rec)
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status === 'ok') {
+      ingresos.push(rec);
+      localStorage.removeItem('ci_ing');
+      renderTables();
+      resetIngreso();
+      toast('✓ Ingreso guardado en Google Sheets', 'blue');
+    } else {
+      toast('Error al guardar — intenta de nuevo', 'blue');
+    }
+  })
+  .catch(() => {
+    // Guardar localmente si falla la conexión
+    ingresos.push(rec);
+    localStorage.setItem('ci_ing', JSON.stringify(ingresos));
+    renderTables();
+    resetIngreso();
+    toast('⚠ Sin conexión — guardado localmente', 'blue');
+  })
+  .finally(() => { btn.textContent = 'Guardar Ingreso'; btn.disabled = false; });
 }
 
 // ── GUARDAR EGRESO ────────────────────────────────────────────────────────
@@ -1027,11 +1065,42 @@ function guardarEgreso() {
     ts: new Date().toISOString()
   };
 
-  egresos.push(rec);
-  localStorage.setItem('ci_egr', JSON.stringify(egresos));
-  resetEgreso();
-  renderTables();
-  toast('✓ Egreso guardado correctamente','red');
+  const rec = {
+    tipo: 'egreso',
+    folio, fecha,
+    categoria: selectedCat, concepto, monto, ticket,
+    forma_pago: selectedPagoEgr, notas,
+    registrado: regEgr,
+    ts: new Date().toISOString()
+  };
+
+  const btn = document.querySelector('.egr-save');
+  btn.textContent = 'Enviando...'; btn.disabled = true;
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    body: JSON.stringify(rec)
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status === 'ok') {
+      egresos.push(rec);
+      localStorage.removeItem('ci_egr');
+      renderTables();
+      resetEgreso();
+      toast('✓ Egreso guardado en Google Sheets', 'red');
+    } else {
+      toast('Error al guardar — intenta de nuevo', 'red');
+    }
+  })
+  .catch(() => {
+    egresos.push(rec);
+    localStorage.setItem('ci_egr', JSON.stringify(egresos));
+    renderTables();
+    resetEgreso();
+    toast('⚠ Sin conexión — guardado localmente', 'red');
+  })
+  .finally(() => { btn.textContent = 'Guardar Egreso'; btn.disabled = false; });
 }
 
 // ── RESET ─────────────────────────────────────────────────────────────────
