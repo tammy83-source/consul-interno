@@ -245,7 +245,7 @@ tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--g50
 <div id="toast"></div>
 
 <script>
-var SHEET='https://script.google.com/macros/s/AKfycbyFdhPBnwGfYrEdwJauRkFRV1__8LsnUi03q6lzT6b3BeitClqbEyETIt9yzkLVJWPK/exec';
+var SHEET='https://script.google.com/macros/s/AKfycbxdCr1_G_n-yWFROb5aLTBLPJN_IXEbnuiVYMgy_t7KO3Xwcsek0tORHmL9SBreyJCYmA/exec';
 var TRATS=[{n:'Endodoncia',z:0},{n:'Retiro de suturas',z:1,d:1},{n:'Revisión sin costo',z:1},{n:'Diagnóstico sin costo',z:1},{n:'Consulta',z:0},{n:'Emergencia',z:0},{n:'Cx',z:0},{n:'Retiro de poste',z:0},{n:'Espacio para poste',z:0},{n:'Alargamiento de corona',z:0},{n:'Retiro de carillas con láser',z:0},{n:'Láser',z:0},{n:'Blanqueamiento',z:0},{n:'Periimplantitis',z:0},{n:'Apexificación',z:0},{n:'Incisión y drenaje',z:0},{n:'Pulpotomía',z:0},{n:'NESA 14 sesiones',z:0},{n:'Sedación',z:0},{n:'Hipersensibilidad',z:0},{n:'Perio repair',z:0},{n:'Recubrimiento pulpar',z:0},{n:'Retiro de caries con láser',z:0},{n:'Terapia láser periodoncia',z:0},{n:'Láser lengua',z:0},{n:'Fibroma',z:0},{n:'Láser muscular',z:0},{n:'Láser ATM',z:0},{n:'Hemangioma',z:0},{n:'Herpes y aftas',z:0},{n:'Frenilectomía inferior',z:0},{n:'Frenilectomía superior',z:0},{n:'Otros',z:0,o:1}];
 var CATS=['Gasolina moto','Estacionamiento','CFE','Telmex','Café Dr','Refresco Dr','Comida Dr','Dentadec','Office Depot','Agua Garrafón','Transfer Dr J','Impuestos','Firmacar','Coche Isaac','IMSS','ISR','Amex','Nómina','Renta','Depósito Palmas','Aromaterapia','Cheque caja chica','Costco','Sams','Eduardo Fierro','Cheque P','Material','Grupo Acosta','Espacio','Dist. Craneofacial','Remex','Mantenimiento consul','Reactivos esterilización','Mesones','Otros'];
 var selT=[],selE='',selP='',selPDebe='',deuda=null,selC='',selPE='',rI='',rE='',ingresos=[],egresos=[];
@@ -439,11 +439,11 @@ function saveIng(){
   if(!selE)return toast('Selecciona el estatus de la cita','b');
   if(selE==='Reprogramó'&&!rep)return toast('Ingresa la fecha de reprogramación','b');
   if(!selP)return toast('Selecciona la forma de pago','b');
-  if(selP==='Mixto'){var tot=parseFloat(document.getElementById('imonto').value)||0;var sum=['mx0','mx1','mx2','mx3','mx4','mx5'].reduce(function(a,id){return a+(parseFloat(document.getElementById(id).value)||0);},0);if(Math.abs(tot-sum)>0.01)return toast('El desglose mixto no cuadra con el monto','b');}
-  if(selT.indexOf('Otros')!==-1&&!obs)return toast('Observaciones es obligatorio cuando se elige Otros','b');
   if(document.getElementById('imonto').value.trim()==='')return toast('Ingresa el monto del tratamiento','b');
+  if(selP==='Mixto'){var tot=parseFloat(document.getElementById('imonto').value)||0;var sum=['mx0','mx1','mx2','mx3','mx4','mx5'].reduce(function(a,id){return a+(parseFloat(document.getElementById(id).value)||0);},0);if(Math.abs(tot-sum)>0.01)return toast('El desglose mixto no cuadra con el monto','b');}
   if(selP==='Debe'&&document.getElementById('debe-pago').value.trim()==='')return toast('Ingresa el monto que paga hoy','b');
   if(selP==='Debe'){var ph=parseFloat(document.getElementById('debe-pago').value)||0;if(ph>0&&!selPDebe)return toast('Selecciona la forma de pago del abono','b');}
+  if(selT.indexOf('Otros')!==-1&&!obs)return toast('Observaciones es obligatorio cuando se elige Otros','b');
   if(!rI)return toast('Selecciona quién registra (E, D o T)','b');
   var trats=selT.length?selT:[ts];
   var folio=mkFolio();
@@ -453,7 +453,8 @@ function saveIng(){
   var rec={tipo:'ingreso',folio:folio,fecha:fecha,paciente:pac,doctor:dr,tratamientos:trats.join(' / '),estatus:selE,fecha_reprogram:rep||'—',monto:monto,forma_pago:selP,obs:obs,registrado:rI,pago_hoy:pagoHoy,saldo_pendiente:saldoPend,forma_pago_abono:fpAbono,ts:new Date().toISOString()};
   var btn=document.getElementById('savi');btn.textContent='Enviando...';btn.disabled=true;
   var url=SHEET+'?data='+encodeURIComponent(JSON.stringify(rec));
-  fetch(url,{method:'GET',mode:'no-cors'})
+  fetch(url)
+    .then(function(r){return r.json();})
     .then(function(){ingresos.push(rec);localStorage.removeItem('ci_ing');renderTbls();rstIng();toast('✓ Ingreso guardado en Google Sheets','b');})
     .catch(function(){ingresos.push(rec);localStorage.setItem('ci_ing',JSON.stringify(ingresos));renderTbls();rstIng();toast('⚠ Sin conexión — guardado localmente','b');})
     .finally(function(){btn.textContent='Guardar Ingreso';btn.disabled=false;});
@@ -478,7 +479,8 @@ function saveEgr(){
   var rec={tipo:'egreso',folio:folio,fecha:fecha,categoria:cat,concepto:con,monto:monto,ticket:tkt,forma_pago:selPE,notas:not,registrado:rE,ts:new Date().toISOString()};
   var btn=document.getElementById('save');btn.textContent='Enviando...';btn.disabled=true;
   var url=SHEET+'?data='+encodeURIComponent(JSON.stringify(rec));
-  fetch(url,{method:'GET',mode:'no-cors'})
+  fetch(url)
+    .then(function(r){return r.json();})
     .then(function(){egresos.push(rec);localStorage.removeItem('ci_egr');renderTbls();rstEgr();toast('✓ Egreso guardado en Google Sheets','r');})
     .catch(function(){egresos.push(rec);localStorage.setItem('ci_egr',JSON.stringify(egresos));renderTbls();rstEgr();toast('⚠ Sin conexión — guardado localmente','r');})
     .finally(function(){btn.textContent='Guardar Egreso';btn.disabled=false;});
