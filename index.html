@@ -161,6 +161,17 @@ tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--g50
         <label class="lbl">Cuanto paga hoy? <span style="color:#4A8FE0">*</span></label>
         <input type="number" id="debe-pago" placeholder="0.00" step="0.01" min="0" style="border:1.5px solid #BA7517;border-radius:8px;padding:10px 13px;font-size:14px;font-family:inherit;width:100%;outline:none;background:#fff">
       </div>
+      <div id="debe-fpago-wrap" style="display:none;margin-bottom:10px">
+        <label class="lbl" style="margin-bottom:6px;display:block">Forma de pago del abono <span style="color:#4A8FE0">*</span></label>
+        <div style="display:flex;flex-wrap:wrap;gap:7px" id="debe-fprow">
+          <div class="pc" data-v="Efectivo">Efectivo</div>
+          <div class="pc" data-v="Tarjeta Multiva">Tarjeta Multiva</div>
+          <div class="pc" data-v="Tarjeta Banorte">Tarjeta Banorte</div>
+          <div class="pc" data-v="Transferencia Multiva">Transf. Multiva</div>
+          <div class="pc" data-v="Transferencia Banorte">Transf. Banorte</div>
+          <div class="pc" data-v="Cheque">Cheque</div>
+        </div>
+      </div>
       <div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:12px;color:#791F1F;font-weight:500">Saldo que queda debiendo:</span>
         <strong id="debe-saldo" style="font-size:20px;color:#A32D2D;font-weight:600;font-family:monospace">$0.00</strong>
@@ -234,10 +245,10 @@ tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--g50
 <div id="toast"></div>
 
 <script>
-var SHEET='https://script.google.com/macros/s/AKfycbwssTYExzBQx4F6VhQnN4QFwEiRzxHfkY23mLGez9QMgy6ACyKdtXfzp0Fiq4PmDUQMXA/exec';
+var SHEET='https://script.google.com/macros/s/AKfycbyFdhPBnwGfYrEdwJauRkFRV1__8LsnUi03q6lzT6b3BeitClqbEyETIt9yzkLVJWPK/exec';
 var TRATS=[{n:'Endodoncia',z:0},{n:'Retiro de suturas',z:1,d:1},{n:'Revisión sin costo',z:1},{n:'Diagnóstico sin costo',z:1},{n:'Consulta',z:0},{n:'Emergencia',z:0},{n:'Cx',z:0},{n:'Retiro de poste',z:0},{n:'Espacio para poste',z:0},{n:'Alargamiento de corona',z:0},{n:'Retiro de carillas con láser',z:0},{n:'Láser',z:0},{n:'Blanqueamiento',z:0},{n:'Periimplantitis',z:0},{n:'Apexificación',z:0},{n:'Incisión y drenaje',z:0},{n:'Pulpotomía',z:0},{n:'NESA 14 sesiones',z:0},{n:'Sedación',z:0},{n:'Hipersensibilidad',z:0},{n:'Perio repair',z:0},{n:'Recubrimiento pulpar',z:0},{n:'Retiro de caries con láser',z:0},{n:'Terapia láser periodoncia',z:0},{n:'Láser lengua',z:0},{n:'Fibroma',z:0},{n:'Láser muscular',z:0},{n:'Láser ATM',z:0},{n:'Hemangioma',z:0},{n:'Herpes y aftas',z:0},{n:'Frenilectomía inferior',z:0},{n:'Frenilectomía superior',z:0},{n:'Otros',z:0,o:1}];
 var CATS=['Gasolina moto','Estacionamiento','CFE','Telmex','Café Dr','Refresco Dr','Comida Dr','Dentadec','Office Depot','Agua Garrafón','Transfer Dr J','Impuestos','Firmacar','Coche Isaac','IMSS','ISR','Amex','Nómina','Renta','Depósito Palmas','Aromaterapia','Cheque caja chica','Costco','Sams','Eduardo Fierro','Cheque P','Material','Grupo Acosta','Espacio','Dist. Craneofacial','Remex','Mantenimiento consul','Reactivos esterilización','Mesones','Otros'];
-var selT=[],selE='',selP='',deuda=null,selC='',selPE='',rI='',rE='',ingresos=[],egresos=[];
+var selT=[],selE='',selP='',selPDebe='',deuda=null,selC='',selPE='',rI='',rE='',ingresos=[],egresos=[];
 
 document.addEventListener('DOMContentLoaded',function(){
   var hoy=new Date(),iso=hoy.toISOString().split('T')[0];
@@ -322,6 +333,11 @@ function bindEvents(){
   document.getElementById('imonto').addEventListener('input',function(){calcMixto();calcDebe();});
   document.getElementById('debe-pago').addEventListener('input',calcDebe);
 
+  document.getElementById('debe-fprow').addEventListener('click',function(ev){
+    var ch=ev.target.closest('.pc');if(!ch||!ch.closest('#debe-fprow'))return;
+    document.querySelectorAll('#debe-fprow .pc').forEach(function(x){x.classList.remove('on');});
+    ch.classList.add('on');selPDebe=ch.dataset.v;
+  });
   document.getElementById('dsi').addEventListener('click',function(){deuda=true;document.getElementById('dtxt').textContent='⚠ Saldo pendiente — ingresa el monto a cobrar.';document.getElementById('dblk').style.background='#FEF2F2';updMonto();});
   document.getElementById('dno').addEventListener('click',function(){deuda=false;document.getElementById('dtxt').textContent='✓ Sin deuda — monto en $0.';document.getElementById('dblk').style.background='#F0FDF4';updMonto();});
 
@@ -397,6 +413,9 @@ function calcDebe(){
   document.getElementById('debe-pago-disp').textContent='$'+pago.toFixed(2);
   document.getElementById('debe-saldo-disp').textContent='$'+saldo.toFixed(2);
   document.getElementById('debe-saldo').textContent='$'+saldo.toFixed(2);
+  var wrap=document.getElementById('debe-fpago-wrap');
+  if(pago>0){wrap.style.display='block';}
+  else{wrap.style.display='none';document.querySelectorAll('#debe-fprow .pc').forEach(function(x){x.classList.remove('on');});selPDebe='';}
 }
 function swTab(t){
   document.getElementById('pi').classList.toggle('on',t==='i');
@@ -422,12 +441,16 @@ function saveIng(){
   if(!selP)return toast('Selecciona la forma de pago','b');
   if(selP==='Mixto'){var tot=parseFloat(document.getElementById('imonto').value)||0;var sum=['mx0','mx1','mx2','mx3','mx4','mx5'].reduce(function(a,id){return a+(parseFloat(document.getElementById(id).value)||0);},0);if(Math.abs(tot-sum)>0.01)return toast('El desglose mixto no cuadra con el monto','b');}
   if(selT.indexOf('Otros')!==-1&&!obs)return toast('Observaciones es obligatorio cuando se elige Otros','b');
+  if(document.getElementById('imonto').value.trim()==='')return toast('Ingresa el monto del tratamiento','b');
+  if(selP==='Debe'&&document.getElementById('debe-pago').value.trim()==='')return toast('Ingresa el monto que paga hoy','b');
+  if(selP==='Debe'){var ph=parseFloat(document.getElementById('debe-pago').value)||0;if(ph>0&&!selPDebe)return toast('Selecciona la forma de pago del abono','b');}
   if(!rI)return toast('Selecciona quién registra (E, D o T)','b');
   var trats=selT.length?selT:[ts];
   var folio=mkFolio();
   var pagoHoy=selP==='Debe'?(parseFloat(document.getElementById('debe-pago').value)||0):'';
   var saldoPend=selP==='Debe'?Math.max(0,monto-(parseFloat(document.getElementById('debe-pago').value)||0)):'';
-  var rec={tipo:'ingreso',folio:folio,fecha:fecha,paciente:pac,doctor:dr,tratamientos:trats.join(' / '),estatus:selE,fecha_reprogram:rep||'—',monto:monto,forma_pago:selP,obs:obs,registrado:rI,pago_hoy:pagoHoy,saldo_pendiente:saldoPend,ts:new Date().toISOString()};
+  var fpAbono=selP==='Debe'?selPDebe:'';
+  var rec={tipo:'ingreso',folio:folio,fecha:fecha,paciente:pac,doctor:dr,tratamientos:trats.join(' / '),estatus:selE,fecha_reprogram:rep||'—',monto:monto,forma_pago:selP,obs:obs,registrado:rI,pago_hoy:pagoHoy,saldo_pendiente:saldoPend,forma_pago_abono:fpAbono,ts:new Date().toISOString()};
   var btn=document.getElementById('savi');btn.textContent='Enviando...';btn.disabled=true;
   var url=SHEET+'?data='+encodeURIComponent(JSON.stringify(rec));
   fetch(url,{method:'GET',mode:'no-cors'})
@@ -446,7 +469,7 @@ function saveEgr(){
   if(!fecha)return toast('Ingresa la fecha','r');
   if(!selC&&!cs)return toast('Selecciona o escribe una categoría','r');
   if(!con)return toast('Ingresa el concepto del gasto','r');
-  if(!monto)return toast('Ingresa el monto','r');
+  if(document.getElementById('emonto').value.trim()==='')return toast('Ingresa el monto','r');
   if(!tkt)return toast('Ingresa el número de ticket o transferencia','r');
   if(!selPE)return toast('Selecciona la forma de pago del egreso','r');
   if(!rE)return toast('Selecciona quién registra (E, D o T)','r');
@@ -480,6 +503,9 @@ function rstIng(){
   document.getElementById('tac').classList.remove('open');
   document.getElementById('debeblk').style.display='none';
   document.getElementById('debe-pago').value='';
+  document.getElementById('debe-fpago-wrap').style.display='none';
+  document.querySelectorAll('#debe-fprow .pc').forEach(function(x){x.classList.remove('on');});
+  selPDebe='';
   calcDebe();
   document.getElementById('imonto').disabled=false;document.getElementById('imonto').classList.remove('zero');
   selT=[];selE='';selP='';deuda=null;rI='';
