@@ -986,16 +986,6 @@ function guardarIngreso() {
   const folio = genFolios();
 
   const rec = {
-    folio, fecha, paciente, doctor,
-    tratamientos: selectedTrats.join(' / '),
-    estatus: selectedEstatus,
-    fecha_reprogram: reprogram || '—',
-    monto, forma_pago: selectedPago,
-    obs, registrado: regIng,
-    ts: new Date().toISOString()
-  };
-
-  const rec = {
     tipo: 'ingreso',
     folio, fecha, paciente, doctor,
     tratamientos: selectedTrats.join(' / '),
@@ -1056,14 +1046,6 @@ function guardarEgreso() {
   if (!regEgr)         return toast('Selecciona quién registra (E, D o T)','red');
 
   const folio = genFolios();
-
-  const rec = {
-    folio, fecha,
-    categoria: selectedCat, concepto, monto, ticket,
-    forma_pago: selectedPagoEgr, notas,
-    registrado: regEgr,
-    ts: new Date().toISOString()
-  };
 
   const rec = {
     tipo: 'egreso',
