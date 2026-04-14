@@ -17,6 +17,20 @@ body{font-family:'DM Sans',sans-serif;background:#EEF2FF;min-height:100vh;paddin
 .tab{flex:1;padding:13px 0;border:none;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
 .tab.it{background:var(--bxl);color:var(--blue);border-bottom:3px solid var(--bl)}.tab.it.on{background:var(--blue);color:#fff;border-bottom:3px solid #93C5FD}
 .tab.et{background:var(--rl);color:var(--red);border-bottom:3px solid var(--rm)}.tab.et.on{background:var(--red);color:#fff;border-bottom:3px solid var(--amb)}
+.tab.ct{background:#E1F5EE;color:#0F6E56;border-bottom:3px solid #9FE1CB}.tab.ct.on{background:#1D9E75;color:#fff;border-bottom:3px solid #EF9F27}
+.sec.teal{color:#0F6E56;border-color:#9FE1CB}
+.savebtn.bc{background:#1D9E75;color:#fff;box-shadow:0 4px 14px rgba(29,158,117,.28)}
+.uz{border:1.5px dashed var(--g200);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--g50)}
+.uz-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--g600);margin-bottom:8px}
+.uz-lbl .req{color:#1D9E75}
+.uz-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--g200);background:#fff;color:var(--g600);cursor:pointer;transition:all .12s}
+.uz-btn:hover{border-color:#1D9E75;color:#0F6E56}
+.uz-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.uz-thumb{width:56px;height:56px;border-radius:6px;object-fit:cover;border:1px solid #9FE1CB}
+.uz-count{font-size:11px;color:#0F6E56;font-weight:600;margin-top:6px;background:#E1F5EE;display:inline-block;padding:3px 10px;border-radius:20px}
+.comp-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px dashed var(--rm);background:var(--rl);color:var(--red);cursor:pointer;transition:all .12s;margin-top:8px}
+.comp-btn:hover{border-style:solid}
+.comp-name{font-size:12px;color:#0F6E56;margin-top:6px;display:none}
 .panel{background:#fff;border-radius:0 0 16px 16px;box-shadow:0 2px 16px rgba(26,46,122,.1);padding:28px 24px 32px;display:none}.panel.on{display:block}
 .sec{font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;padding-bottom:7px;margin:22px 0 14px;border-bottom:1.5px solid}.sec.b{color:var(--blue);border-color:var(--bl)}.sec.r{color:var(--red);border-color:var(--rl)}.sec.g{color:var(--g400);border-color:var(--g200)}.sec:first-child{margin-top:0}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}.row.r1{grid-template-columns:1fr}
@@ -76,7 +90,7 @@ tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--g50
 .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
 .pb{background:var(--bxl);color:var(--blue)}.pr{background:var(--rl);color:var(--red)}.pg{background:var(--grnl);color:var(--grn)}.pa{background:var(--ambl);color:var(--amb)}.pgr{background:var(--g100);color:var(--g600)}
 #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);padding:12px 26px;border-radius:40px;font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.16);opacity:0;transition:all .28s;pointer-events:none;z-index:999;white-space:nowrap}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}#toast.tb{background:var(--blue);color:#fff}#toast.tr{background:var(--red);color:#fff}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}#toast.tb{background:var(--blue);color:#fff}#toast.tr{background:var(--red);color:#fff}#toast.ttc{background:#1D9E75;color:#fff}
 @media(max-width:520px){.row{grid-template-columns:1fr}.panel{padding:20px 14px 26px}}
 </style>
 </head>
@@ -93,6 +107,7 @@ tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--g50
   <div class="tabs">
     <button class="tab it on" id="tabi">Ingreso</button>
     <button class="tab et" id="tabe">Egreso</button>
+    <button class="tab ct" id="tabc">Cierre del Día</button>
   </div>
 
   <!-- INGRESO -->
@@ -222,9 +237,56 @@ tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--g50
       <div class="ropt" data-v="Transferencia"><div class="rdot"></div>Transferencia</div>
     </div>
     <div class="row r1"><div class="fld"><label class="lbl">Notas adicionales</label><textarea id="enot" placeholder="Proveedor, justificación, observaciones..."></textarea></div></div>
+    <div class="sec r">Comprobante / Factura <span class="atag" style="text-transform:none;letter-spacing:0">opcional</span></div>
+    <div>
+      <button class="comp-btn" id="comp-btn" type="button">+ Adjuntar foto</button>
+      <input type="file" id="comp-input" accept="image/*" style="display:none">
+      <div class="comp-name" id="comp-name"></div>
+    </div>
     <div class="sec g">Registrado por</div>
     <div class="regrow" id="regE"><button class="rb" data-v="E">E</button><button class="rb" data-v="D">D</button><button class="rb" data-v="T">T</button></div>
     <button class="savebtn be" id="save">Guardar Egreso</button>
+  </div>
+</div>
+
+  <!-- CIERRE DEL DÍA -->
+  <div class="panel" id="pc">
+    <div class="sec teal">Datos del cierre</div>
+    <div class="row">
+      <div class="fld"><label class="lbl">Folio <span class="atag">automático</span></label><div class="folio" id="folc">—</div></div>
+      <div class="fld"><label class="lbl">Fecha <span class="req" style="color:#1D9E75">*</span></label><input type="date" id="cf"></div>
+    </div>
+    <div class="sec teal">Caja y bancos</div>
+    <div class="row">
+      <div class="fld"><label class="lbl">Apertura caja chica <span class="req" style="color:#1D9E75">*</span></label><input type="number" id="cap" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="fld"><label class="lbl">Cierre caja chica <span class="req" style="color:#1D9E75">*</span></label><input type="number" id="ccaj" placeholder="0.00" step="0.01" min="0"></div>
+    </div>
+    <div class="row">
+      <div class="fld"><label class="lbl">Cierre Banorte <span class="req" style="color:#1D9E75">*</span></label><input type="number" id="cban" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="fld"><label class="lbl">Cierre Multiva <span class="req" style="color:#1D9E75">*</span></label><input type="number" id="cmul" placeholder="0.00" step="0.01" min="0"></div>
+    </div>
+    <div class="sec teal">Comprobantes fotográficos</div>
+    <div class="uz" id="uz-agenda">
+      <div class="uz-lbl">Agenda <span class="req">*</span></div>
+      <button class="uz-btn" id="btn-agenda" type="button">+ Agregar fotos</button>
+      <input type="file" id="inp-agenda" accept="image/*" multiple style="display:none">
+      <div class="uz-thumbs" id="th-agenda"></div>
+    </div>
+    <div class="uz" id="uz-sobres">
+      <div class="uz-lbl">Sobres <span class="req">*</span></div>
+      <button class="uz-btn" id="btn-sobres" type="button">+ Agregar fotos</button>
+      <input type="file" id="inp-sobres" accept="image/*" multiple style="display:none">
+      <div class="uz-thumbs" id="th-sobres"></div>
+    </div>
+    <div class="uz" id="uz-corte">
+      <div class="uz-lbl">Corte <span class="req">*</span></div>
+      <button class="uz-btn" id="btn-corte" type="button">+ Agregar fotos</button>
+      <input type="file" id="inp-corte" accept="image/*" multiple style="display:none">
+      <div class="uz-thumbs" id="th-corte"></div>
+    </div>
+    <div class="sec g">Registrado por</div>
+    <div class="regrow" id="regC"><button class="rb" data-v="E">E</button><button class="rb" data-v="D">D</button><button class="rb" data-v="T">T</button></div>
+    <button class="savebtn bc" id="savec">Guardar Cierre del Día</button>
   </div>
 </div>
 
@@ -245,15 +307,17 @@ tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--g50
 <div id="toast"></div>
 
 <script>
-var SHEET='https://script.google.com/macros/s/AKfycbxdCr1_G_n-yWFROb5aLTBLPJN_IXEbnuiVYMgy_t7KO3Xwcsek0tORHmL9SBreyJCYmA/exec';
+var SHEET='https://script.google.com/macros/s/AKfycbyPOt3UX48hCPBtRUhrxoZAs663042oQav8goyVkTtjrtB5bU_a8HKUh9UKUdfdhonbwQ/exec';
 var TRATS=[{n:'Endodoncia',z:0},{n:'Retiro de suturas',z:1,d:1},{n:'Revisión sin costo',z:1},{n:'Diagnóstico sin costo',z:1},{n:'Consulta',z:0},{n:'Emergencia',z:0},{n:'Cx',z:0},{n:'Retiro de poste',z:0},{n:'Espacio para poste',z:0},{n:'Alargamiento de corona',z:0},{n:'Retiro de carillas con láser',z:0},{n:'Láser',z:0},{n:'Blanqueamiento',z:0},{n:'Periimplantitis',z:0},{n:'Apexificación',z:0},{n:'Incisión y drenaje',z:0},{n:'Pulpotomía',z:0},{n:'NESA 14 sesiones',z:0},{n:'Sedación',z:0},{n:'Hipersensibilidad',z:0},{n:'Perio repair',z:0},{n:'Recubrimiento pulpar',z:0},{n:'Retiro de caries con láser',z:0},{n:'Terapia láser periodoncia',z:0},{n:'Láser lengua',z:0},{n:'Fibroma',z:0},{n:'Láser muscular',z:0},{n:'Láser ATM',z:0},{n:'Hemangioma',z:0},{n:'Herpes y aftas',z:0},{n:'Frenilectomía inferior',z:0},{n:'Frenilectomía superior',z:0},{n:'Otros',z:0,o:1}];
 var CATS=['Gasolina moto','Estacionamiento','CFE','Telmex','Café Dr','Refresco Dr','Comida Dr','Dentadec','Office Depot','Agua Garrafón','Transfer Dr J','Impuestos','Firmacar','Coche Isaac','IMSS','ISR','Amex','Nómina','Renta','Depósito Palmas','Aromaterapia','Cheque caja chica','Costco','Sams','Eduardo Fierro','Cheque P','Material','Grupo Acosta','Espacio','Dist. Craneofacial','Remex','Mantenimiento consul','Reactivos esterilización','Mesones','Otros'];
-var selT=[],selE='',selP='',selPDebe='',deuda=null,selC='',selPE='',rI='',rE='',ingresos=[],egresos=[];
+var selT=[],selE='',selP='',selPDebe='',deuda=null,selC='',selPE='',rI='',rE='',rC='',ingresos=[],egresos=[];
+var agendaB64=[],sobresB64=[],corteB64=[],compB64='',compNombre='';
 
 document.addEventListener('DOMContentLoaded',function(){
   var hoy=new Date(),iso=hoy.toISOString().split('T')[0];
   document.getElementById('if').value=iso;
   document.getElementById('ef').value=iso;
+  document.getElementById('cf').value=iso;
   document.getElementById('hdate').textContent=hoy.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
   mkFolio();
   mkTrats();
@@ -266,6 +330,7 @@ function mkFolio(){
   var f=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
   document.getElementById('foli').textContent=f;
   document.getElementById('fole').textContent=f;
+  var fc=document.getElementById('folc');if(fc)fc.textContent=f;
   return f;
 }
 
@@ -363,8 +428,31 @@ function bindEvents(){
 
   document.getElementById('savi').addEventListener('click',saveIng);
   document.getElementById('save').addEventListener('click',saveEgr);
+  document.getElementById('savec').addEventListener('click',saveCierre);
   document.getElementById('xing').addEventListener('click',function(){expCSV('i');});
   document.getElementById('xegr').addEventListener('click',function(){expCSV('e');});
+  document.getElementById('tabc').addEventListener('click',function(){swTab('c');});
+  document.getElementById('comp-btn').addEventListener('click',function(){document.getElementById('comp-input').click();});
+  document.getElementById('comp-input').addEventListener('change',function(){
+    if(!this.files.length)return;
+    var file=this.files[0];compNombre=file.name;
+    toB64(file,function(b){compB64=b;document.getElementById('comp-name').textContent='✓ '+file.name;document.getElementById('comp-name').style.display='block';});
+  });
+  ['agenda','sobres','corte'].forEach(function(campo){
+    document.getElementById('btn-'+campo).addEventListener('click',function(){document.getElementById('inp-'+campo).click();});
+    document.getElementById('inp-'+campo).addEventListener('change',function(){
+      var files=Array.from(this.files);if(!files.length)return;
+      var arr=campo==='agenda'?agendaB64:campo==='sobres'?sobresB64:corteB64;
+      var th=document.getElementById('th-'+campo);
+      files.forEach(function(file){
+        toB64(file,function(b){
+          arr.push(b);
+          var img=document.createElement('img');img.src='data:image/jpeg;base64,'+b;img.className='uz-thumb';th.appendChild(img);
+        });
+      });
+    });
+  });
+  document.getElementById('regC').addEventListener('click',function(ev){var b=ev.target.closest('.rb');if(!b)return;document.querySelectorAll('#regC .rb').forEach(function(x){x.classList.remove('on');});b.classList.add('on');rC=b.dataset.v;});
 
   document.addEventListener('click',function(ev){if(!ev.target.closest('.sbox'))document.querySelectorAll('.ac').forEach(function(a){a.classList.remove('open');});});
 }
@@ -417,11 +505,50 @@ function calcDebe(){
   if(pago>0){wrap.style.display='block';}
   else{wrap.style.display='none';document.querySelectorAll('#debe-fprow .pc').forEach(function(x){x.classList.remove('on');});selPDebe='';}
 }
+function toB64(file,cb){
+  var r=new FileReader();r.onload=function(e){cb(e.target.result.split(',')[1]);};r.readAsDataURL(file);
+}
+
+function saveCierre(){
+  var fecha=document.getElementById('cf').value;
+  var cap=document.getElementById('cap').value.trim();
+  var ccaj=document.getElementById('ccaj').value.trim();
+  var cban=document.getElementById('cban').value.trim();
+  var cmul=document.getElementById('cmul').value.trim();
+  if(!fecha)return toast('Ingresa la fecha','tc');
+  if(cap==='')return toast('Ingresa apertura caja chica','tc');
+  if(ccaj==='')return toast('Ingresa cierre caja chica','tc');
+  if(cban==='')return toast('Ingresa cierre Banorte','tc');
+  if(cmul==='')return toast('Ingresa cierre Multiva','tc');
+  if(!agendaB64.length)return toast('Agrega al menos una foto de Agenda','tc');
+  if(!sobresB64.length)return toast('Agrega al menos una foto de Sobres','tc');
+  if(!corteB64.length)return toast('Agrega al menos una foto de Corte','tc');
+  if(!rC)return toast('Selecciona quién registra (E, D o T)','tc');
+  var folio=mkFolio();
+  var rec={tipo:'cierre',folio:folio,fecha:fecha,apertura_caja:parseFloat(cap),cierre_caja:parseFloat(ccaj),cierre_banorte:parseFloat(cban),cierre_multiva:parseFloat(cmul),agenda_imgs:agendaB64,sobres_imgs:sobresB64,corte_imgs:corteB64,registrado:rC};
+  var btn=document.getElementById('savec');btn.textContent='Enviando...';btn.disabled=true;
+  fetch(SHEET,{method:'POST',mode:'no-cors',body:JSON.stringify(rec)})
+    .then(function(){rstCierre();toast('✓ Cierre guardado en Google Sheets','tc');})
+    .catch(function(){toast('⚠ Sin conexión — intenta de nuevo','tc');})
+    .finally(function(){btn.textContent='Guardar Cierre del Día';btn.disabled=false;});
+}
+
+function rstCierre(){
+  document.getElementById('cap').value='';document.getElementById('ccaj').value='';
+  document.getElementById('cban').value='';document.getElementById('cmul').value='';
+  agendaB64=[];sobresB64=[];corteB64=[];rC='';
+  ['agenda','sobres','corte'].forEach(function(campo){document.getElementById('th-'+campo).innerHTML='';document.getElementById('inp-'+campo).value='';});
+  document.querySelectorAll('#regC .rb').forEach(function(b){b.classList.remove('on');});
+  mkFolio();
+}
+
 function swTab(t){
   document.getElementById('pi').classList.toggle('on',t==='i');
   document.getElementById('pe').classList.toggle('on',t==='e');
+  document.getElementById('pc').classList.toggle('on',t==='c');
   document.getElementById('tabi').classList.toggle('on',t==='i');
   document.getElementById('tabe').classList.toggle('on',t==='e');
+  document.getElementById('tabc').classList.toggle('on',t==='c');
 }
 
 function saveIng(){
@@ -476,7 +603,7 @@ function saveEgr(){
   if(!rE)return toast('Selecciona quién registra (E, D o T)','r');
   var cat=selC||cs;
   var folio=mkFolio();
-  var rec={tipo:'egreso',folio:folio,fecha:fecha,categoria:cat,concepto:con,monto:monto,ticket:tkt,forma_pago:selPE,notas:not,registrado:rE,ts:new Date().toISOString()};
+  var rec={tipo:'egreso',folio:folio,fecha:fecha,categoria:cat,concepto:con,monto:monto,ticket:tkt,forma_pago:selPE,notas:not,registrado:rE,comprobante_b64:compB64,comprobante_nombre:compNombre,ts:new Date().toISOString()};
   var btn=document.getElementById('save');btn.textContent='Enviando...';btn.disabled=true;
   var url=SHEET+'?data='+encodeURIComponent(JSON.stringify(rec));
   fetch(url)
@@ -522,6 +649,9 @@ function rstEgr(){
   document.querySelectorAll('.ropt').forEach(function(o){o.classList.remove('on');});
   document.querySelectorAll('#regE .rb').forEach(function(b){b.classList.remove('on');});
   document.getElementById('cac').classList.remove('open');
+  document.getElementById('comp-input').value='';
+  document.getElementById('comp-name').style.display='none';
+  compB64='';compNombre='';
   selC='';selPE='';rE='';
   mkFolio();
 }
